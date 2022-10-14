@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/golang/freetype"
-	// "golang.org/x/image/font"
 )
 
 const WIDTH = 800
@@ -34,6 +33,14 @@ func main() {
 	}
 
 	drawText(srcImg)
+
+	for x := 0; x < WIDTH/2; x++ {
+		for y := 0; y < HEIGHT/2; y++ {
+			l := rand.Intn(30) - 15
+
+			srcImg.Set(x, y, lighten(srcImg.At(x, y).(color.RGBA), l))
+		}
+	}
 
 	img := image.NewRGBA(image.Rect(0, 0, WIDTH, HEIGHT))
 
@@ -65,19 +72,25 @@ func setPixel(img *image.RGBA, x int, y int) {
 
 	if withinCircle(lg_circle, x, y) {
 		col = lblue
+	} else if onCircle(lg_circle, x, y) && rand.Intn(4) == 0 {
+		col = lblue
 	} else if withinCircle(sm_circle, x, y) {
+		col = orange
+	} else if onCircle(sm_circle, x, y) && rand.Intn(4) == 0 {
 		col = orange
 	} else if rand.Intn(100) > int(n) {
 		col = dblue
 	}
 
-	l := rand.Intn(40) - 20
-
-	img.Set(x, y, lighten(col, l))
+	img.Set(x, y, col)
 }
 
 func withinCircle(c Circle, x int, y int) bool {
 	return distance(x, y, c.x, c.y) < float64(c.radius)
+}
+
+func onCircle(c Circle, x int, y int) bool {
+	return math.Abs(distance(x, y, c.x, c.y)-float64(c.radius)) < 5
 }
 
 func distance(x1, y1, x2, y2 int) float64 {
