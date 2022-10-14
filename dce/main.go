@@ -4,10 +4,15 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"io/ioutil"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/golang/freetype"
+	// "golang.org/x/image/font"
 )
 
 const WIDTH = 800
@@ -27,6 +32,8 @@ func main() {
 			setPixel(srcImg, x, y)
 		}
 	}
+
+	drawText(srcImg)
 
 	img := image.NewRGBA(image.Rect(0, 0, WIDTH, HEIGHT))
 
@@ -91,4 +98,50 @@ func lighten(c color.RGBA, n int) color.RGBA {
 	}
 
 	return color.RGBA{R: adjust(c.R), G: adjust(c.G), B: adjust(c.B), A: 255}
+}
+
+func drawText(img *image.RGBA) {
+	fontBytes, err := ioutil.ReadFile("./fonts/Victor Mono Regular Nerd Font Complete Mono.ttf")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	f, err := freetype.ParseFont(fontBytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	c := freetype.NewContext()
+	c.SetDPI(72)
+	c.SetFont(f)
+	c.SetFontSize(24)
+	c.SetClip(img.Bounds())
+	c.SetDst(img)
+
+	c.SetSrc(image.Black)
+
+	pt := freetype.Pt(11, 31)
+	c.DrawString("Viget Dev Offsite", pt)
+
+	c.SetFontSize(18)
+	pt = freetype.Pt(11, 61)
+	c.DrawString("Fall 2022", pt)
+
+	c.SetFontSize(24)
+	pt = freetype.Pt(66, 281)
+	c.DrawString("“Friendship is Magic”", pt)
+
+	c.SetSrc(image.White)
+
+	pt = freetype.Pt(10, 30)
+	c.DrawString("Viget Dev Offsite", pt)
+
+	c.SetFontSize(18)
+	pt = freetype.Pt(10, 60)
+	c.DrawString("Fall 2022", pt)
+
+	c.SetFontSize(24)
+	pt = freetype.Pt(65, 280)
+	c.DrawString("“Friendship is Magic”", pt)
 }
